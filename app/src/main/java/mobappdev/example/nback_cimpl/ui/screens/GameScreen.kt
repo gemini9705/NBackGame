@@ -89,9 +89,9 @@ fun VisualGameGrid(eventValue: Int, onTileClick: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.Center
             ) {
                 for (j in 0..2) {
-                    val cellNumber = i * 3 + j + 1  // Calculate the cell index
+                    val cellNumber = i * 3 + j + 1
 
-                    // Make each cell clickable and call onTileClick with the cell index
+                    // Color the tile red if it matches the current eventValue
                     Box(
                         modifier = Modifier
                             .size(80.dp)
@@ -99,7 +99,7 @@ fun VisualGameGrid(eventValue: Int, onTileClick: (Int) -> Unit) {
                             .background(
                                 color = if (cellNumber == eventValue) Color.Red else Color.Gray
                             )
-                            .clickable { onTileClick(cellNumber) }, // Make the tile clickable
+                            .clickable { onTileClick(cellNumber) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -113,5 +113,6 @@ fun VisualGameGrid(eventValue: Int, onTileClick: (Int) -> Unit) {
         }
     }
 }
+
 
 

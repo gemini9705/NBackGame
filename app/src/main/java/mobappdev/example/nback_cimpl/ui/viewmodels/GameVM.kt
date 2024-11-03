@@ -101,38 +101,35 @@ class GameVM(
         }
     }
 
-    // Function to run the game loop by displaying each event in sequence
     private suspend fun runGameLoop(events: Array<Int>) {
         for (index in events.indices) {
-            // Update gameState with the current event value to trigger UI updates
             _gameState.value = _gameState.value.copy(eventValue = events[index])
+            Log.d("GameVM", "Current eventValue: ${events[index]}")  // Log eventValue to verify
             delay(eventInterval)  // Wait for the specified interval before moving to the next event
         }
-        // Game ends after all events are shown
     }
 
-    override fun checkMatch(selectedTile: Int) {
-        // Get the current event position that should match
-        val currentEventValue = gameState.value.eventValue
 
-        // Check if the selected tile matches the current event value
+
+    override fun checkMatch(selectedTile: Int) {
+        val currentEventValue = gameState.value.eventValue
+        Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue")  // Log selected and event values
+
         if (selectedTile == currentEventValue) {
-            // Correct match
             _score.value += 1
             updateHighScore(_score.value)
             _feedback.value = FeedbackType.Correct
+            Log.d("GameVM", "Correct match! Score updated to ${_score.value}")
         } else {
-            // Incorrect match
             _feedback.value = FeedbackType.Incorrect
+            Log.d("GameVM", "Incorrect match!")
         }
 
-        // Reset feedback after a short delay to provide visual feedback
         viewModelScope.launch {
             delay(500)
             _feedback.value = FeedbackType.None
         }
     }
-
 
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
