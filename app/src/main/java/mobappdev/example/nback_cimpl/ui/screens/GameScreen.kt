@@ -2,14 +2,7 @@ package mobappdev.example.nback_cimpl.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
+
 
 /**
  * This is the GameScreen composable.
@@ -49,20 +43,24 @@ fun GameScreen(vm: GameViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Game Type: ${gameState.gameType}")
+        Text(text = "Game Type: ${gameState.gameType}", style = MaterialTheme.typography.headlineSmall)
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         when (gameState.gameType) {
             GameType.Visual -> VisualGameGrid(
                 eventValue = gameState.eventValue,
                 onTileClick = { selectedTile ->
-                    // Call checkMatch with the selected tile
-                    vm.checkMatch(selectedTile)
+                    vm.checkMatch(selectedTile) // Call checkMatch with selected tile
                 }
             )
             GameType.Audio -> Text("Audio cue: ${gameState.eventValue}")
-            GameType.AudioVisual -> Text("Audio-Visual mode not implemented") // Placeholder for AudioVisual case
+            GameType.AudioVisual -> Text("Audio-Visual mode not implemented") // Placeholder
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display score with feedback colors
         Text(
             text = "Score: $score",
             modifier = Modifier.padding(top = 16.dp),
@@ -70,12 +68,18 @@ fun GameScreen(vm: GameViewModel) {
                 GameVM.FeedbackType.Correct -> Color.Green
                 GameVM.FeedbackType.Incorrect -> Color.Red
                 GameVM.FeedbackType.None -> Color.Black
-            }
+            },
+            style = MaterialTheme.typography.headlineMedium
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Reset Button
+        Button(onClick = { vm.resetGame() }) {
+            Text(text = "Reset Game")
+        }
     }
 }
-
-
 
 /**
  * VisualGameGrid shows a 3x3 grid for visual stimuli.
@@ -91,19 +95,19 @@ fun VisualGameGrid(eventValue: Int, onTileClick: (Int) -> Unit) {
                 for (j in 0..2) {
                     val cellNumber = i * 3 + j + 1
 
-                    // Color the tile red if it matches the current eventValue
+                    // Color the tile red if it matches the current eventValue, and hide if eventValue is -1
                     Box(
                         modifier = Modifier
                             .size(80.dp)
                             .padding(4.dp)
                             .background(
-                                color = if (cellNumber == eventValue) Color.Red else Color.Gray
+                                color = if (cellNumber == eventValue && eventValue != -1) Color.Red else Color.Gray
                             )
                             .clickable { onTileClick(cellNumber) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (cellNumber == eventValue) "X" else "",
+                            text = if (cellNumber == eventValue && eventValue != -1) "X" else "",
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.White
                         )
