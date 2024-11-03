@@ -6,6 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import mobappdev.example.nback_cimpl.ui.screens.HomeScreen
@@ -25,6 +28,8 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
  *
  */
 
+// Enum class to define the states of the screens
+enum class ViewState { HOME, GAME }
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,12 +42,27 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // Instantiate the viewmodel
-                    val gameViewModel: GameVM = viewModel(
-                        factory = GameVM.Factory
-                    )
+                    val gameViewModel: GameVM = viewModel(factory = GameVM.Factory)
 
-                    // Instantiate the homescreen
-                    HomeScreen(vm = gameViewModel)
+                    // State variable to hold the current view state
+                    var currentViewState by remember { mutableStateOf(ViewState.HOME) }
+
+                    // Function to handle navigation
+                    fun navigateToGameScreen() {
+                        currentViewState = ViewState.GAME
+                    }
+
+                    // Render the appropriate screen based on the current view state
+                    when (currentViewState) {
+                        ViewState.HOME -> {
+                            HomeScreen(vm = gameViewModel, onNavigateToGameScreen = {
+                                navigateToGameScreen()
+                            })
+                        }
+                        ViewState.GAME -> {
+                            GameScreen(vm = gameViewModel)
+                        }
+                    }
                 }
             }
         }
