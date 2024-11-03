@@ -55,7 +55,7 @@ fun GameScreen(vm: GameViewModel) {
                 }
             )
             GameType.Audio -> Text("Audio cue: ${gameState.eventValue}")
-            GameType.AudioVisual -> Text("Audio-Visual mode not implemented") // Placeholder
+            //GameType.AudioVisual -> Text("Audio-Visual mode not implemented") // Placeholder
         }
 
         Spacer(modifier = Modifier.height(16.dp))

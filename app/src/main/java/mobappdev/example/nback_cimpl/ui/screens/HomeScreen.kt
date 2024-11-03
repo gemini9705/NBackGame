@@ -13,7 +13,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -55,6 +54,12 @@ fun HomeScreen(
     onNavigateToGameScreen: () -> Unit
 ) {
     val highscore by vm.highscore.collectAsState()
+    val gameState by vm.gameState.collectAsState()
+    val gameType = gameState.gameType
+    val nBack = vm.nBack // Assuming nBack is provided by GameViewModel
+    val eventInterval = 2000L // Assuming a constant value or replace it with vm.eventInterval if dynamic
+    val roundSize = 10 // Assuming a constant or replace with dynamic value if available
+
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -73,6 +78,17 @@ fun HomeScreen(
                 text = "High-Score = $highscore",
                 style = MaterialTheme.typography.headlineLarge
             )
+
+            // Display current game settings
+            Text(
+                text = "Game Settings",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(vertical = 16.dp)
+            )
+            Text(text = "Mode: ${gameType.name}")
+            Text(text = "N-Back Level: $nBack")
+            Text(text = "Time Between Events: $eventInterval ms")
+            Text(text = "Events in Round: $roundSize")
 
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -115,6 +131,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 
 @Preview
