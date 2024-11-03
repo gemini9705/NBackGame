@@ -62,7 +62,7 @@ fun GameScreen(vm: GameViewModel) {
 
         // Display current event number and correct responses
         Text(
-            text = "Event: $currentEventNumber / ${vm.nBack}", // assuming total events are managed elsewhere
+            text = "Event: $currentEventNumber / 10", // assuming total events are managed elsewhere
             style = MaterialTheme.typography.bodyLarge
         )
         Text(

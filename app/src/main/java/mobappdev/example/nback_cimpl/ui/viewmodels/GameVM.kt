@@ -36,7 +36,6 @@ class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : GameViewModel, ViewModel() {
 
-    private var previousEventValue: Int = -1
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
@@ -51,15 +50,14 @@ class GameVM(
 
     enum class FeedbackType { Correct, Incorrect, None }
 
-    override val nBack: Int = 1
+    override val nBack: Int = 1  // Assuming 1-back; modify for other values
 
     private var job: Job? = null
     private val eventInterval: Long = 2000L
     private val nBackHelper = NBackHelper()
     private var events = emptyArray<Int>()
-    private var isFirstEvent = true
+    private var eventHistory = mutableListOf<Int>()  // Track history of events
 
-    // Add these properties to track the state of the ongoing game
     private val _currentEventNumber = MutableStateFlow(1)
     override val currentEventNumber: StateFlow<Int> = _currentEventNumber.asStateFlow()
 
@@ -74,10 +72,9 @@ class GameVM(
     override fun startGame() {
         _score.value = 0
         _feedback.value = FeedbackType.None
-        previousEventValue = -1
-        isFirstEvent = true // Reset flag for a new game
-        _correctResponses.value = 0 // Reset correct responses count
-        _currentEventNumber.value = 1 // Reset event number
+        _correctResponses.value = 0
+        _currentEventNumber.value = 1
+        eventHistory.clear()
 
         events = nBackHelper.generateNBackString(size = 10, combinations = 9, percentMatch = 30, nBack = nBack).toTypedArray()
         Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
@@ -94,10 +91,15 @@ class GameVM(
             _gameState.value = _gameState.value.copy(eventValue = -1)
             delay(300)
 
-            _gameState.value = _gameState.value.copy(eventValue = event)
-            Log.d("GameVM", "Current eventValue: $event")
+            // Add the new event to the event history
+            eventHistory.add(event)
+            if (eventHistory.size > nBack + 1) {
+                eventHistory.removeAt(0)  // Keep only the last `nBack + 1` events
+            }
 
-            previousEventValue = event
+            _gameState.value = _gameState.value.copy(eventValue = event)
+            Log.d("GameVM", "Current eventValue: $event, Event history: $eventHistory")
+
             delay(eventInterval)
         }
         _currentEventNumber.value = 1  // Reset to 1 for a new round if needed
@@ -105,34 +107,32 @@ class GameVM(
 
     override fun checkMatch(selectedTile: Int) {
         val currentEventValue = gameState.value.eventValue
-        Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue, Previous Event Value: $previousEventValue")
+        Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue, Event History: $eventHistory")
 
-        // Only allow scoring if this isn't the first event and if it's a correct 1-back match
-        if (!isFirstEvent && selectedTile == previousEventValue && currentEventValue == previousEventValue) {
+        // Check if `eventHistory` has enough items to validate an n-back match
+        if (eventHistory.size > nBack && selectedTile == eventHistory[eventHistory.size - (nBack + 1)]) {
             _score.value += 1
             _correctResponses.value += 1 // Update correct responses count
             updateHighScore(_score.value)
             _feedback.value = FeedbackType.Correct
-            Log.d("GameVM", "Correct 1-back match! Score updated to ${_score.value}")
+            Log.d("GameVM", "Correct n-back match! Score updated to ${_score.value}")
         } else {
             _feedback.value = FeedbackType.Incorrect
             Log.d("GameVM", "Incorrect match!")
         }
 
-        // Only update `previousEventValue` after the check, ensuring it reflects the tile displayed in the previous step
-        previousEventValue = currentEventValue
-        isFirstEvent = false // Disable first-event flag after the initial step
-
+        // Reset feedback after a delay for visual feedback
         viewModelScope.launch {
             delay(500)
             _feedback.value = FeedbackType.None
         }
     }
 
+
     override fun resetGame() {
         _score.value = 0
         _feedback.value = FeedbackType.None
-        previousEventValue = -1
+        eventHistory.clear()
         startGame()
     }
 
