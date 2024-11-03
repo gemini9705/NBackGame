@@ -51,7 +51,7 @@ class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : GameViewModel, ViewModel() {
 
-    private var previousEventValue: Int = -1
+    private var previousEventValue: Int = -1 // Track previous event for 1-back logic
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
@@ -99,9 +99,9 @@ class GameVM(
             _gameState.value = _gameState.value.copy(eventValue = -1)
             delay(300)
 
+            // Show the current event tile
             _gameState.value = _gameState.value.copy(eventValue = events[index])
             Log.d("GameVM", "Current eventValue: ${events[index]}")
-            previousEventValue = events[index]
 
             delay(eventInterval)
         }
@@ -111,7 +111,7 @@ class GameVM(
         val currentEventValue = gameState.value.eventValue
         Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue, Previous Event Value: $previousEventValue")
 
-        // Only allow scoring if this isn't the first event
+        // Only allow scoring if this isn't the first event and if it's a correct 1-back match
         if (!isFirstEvent && selectedTile == previousEventValue && currentEventValue == previousEventValue) {
             _score.value += 1
             updateHighScore(_score.value)
@@ -122,9 +122,9 @@ class GameVM(
             Log.d("GameVM", "Incorrect match!")
         }
 
-        // After the first event, disable the flag
-        isFirstEvent = false
+        // Only update `previousEventValue` after the check, ensuring it reflects the tile displayed in the previous step
         previousEventValue = currentEventValue
+        isFirstEvent = false // Disable first-event flag after the initial step
 
         viewModelScope.launch {
             delay(500)
@@ -162,6 +162,7 @@ class GameVM(
         }
     }
 }
+
 
 
 
