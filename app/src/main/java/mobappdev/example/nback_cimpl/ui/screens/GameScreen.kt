@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 
 /**
  * This is the GameScreen composable.
@@ -36,8 +37,10 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 
 @Composable
 fun GameScreen(vm: GameViewModel) {
+    // Observing the game state, score, and feedback from the ViewModel
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
+    val feedback by vm.feedback.collectAsState()
 
     Column(
         modifier = Modifier
@@ -46,8 +49,10 @@ fun GameScreen(vm: GameViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Displaying the current game type
         Text(text = "Game Type: ${gameState.gameType}")
 
+        // Display the appropriate UI based on the selected game type
         when (gameState.gameType) {
             GameType.Visual -> VisualGameGrid(eventValue = gameState.eventValue)
             GameType.Audio -> {
@@ -57,8 +62,18 @@ fun GameScreen(vm: GameViewModel) {
             else -> Text("Dual N-back (not implemented for basic requirement)")
         }
 
-        Text(text = "Score: $score", modifier = Modifier.padding(top = 16.dp))
+        // Feedback-based styling for score
+        Text(
+            text = "Score: $score",
+            modifier = Modifier.padding(top = 16.dp),
+            color = when (feedback) {
+                GameVM.FeedbackType.Correct -> Color.Green
+                GameVM.FeedbackType.Incorrect -> Color.Red
+                GameVM.FeedbackType.None -> Color.Black
+            }
+        )
 
+        // Button to check for an N-back match
         Button(onClick = vm::checkMatch, modifier = Modifier.padding(top = 16.dp)) {
             Text("Check Match")
         }

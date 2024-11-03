@@ -38,6 +38,7 @@ interface GameViewModel {
     val gameState: StateFlow<GameState>
     val score: StateFlow<Int>
     val highscore: StateFlow<Int>
+    val feedback: StateFlow<GameVM.FeedbackType>  // Add feedback here
     val nBack: Int
 
     fun setGameType(gameType: GameType)
@@ -70,45 +71,60 @@ class GameVM(
     private val nBackHelper = NBackHelper()  // Helper that generate the event array
     private var events = emptyArray<Int>()  // Array with all events
 
+    // Feedback property to observe
+    private val _feedback = MutableStateFlow(FeedbackType.None)
+    override val feedback: StateFlow<FeedbackType> = _feedback.asStateFlow()
+
+    // Enum to represent feedback types
+    enum class FeedbackType { Correct, Incorrect, None }
+
     override fun setGameType(gameType: GameType) {
         // update the gametype in the gamestate
         _gameState.value = _gameState.value.copy(gameType = gameType)
     }
 
     override fun startGame() {
-        job?.cancel()  // Cancel any existing game loop
+        // Reset score and any previous game state
+        _score.value = 0
+        _gameState.value = _gameState.value.copy(eventValue = -1) // Reset current event
 
-        // Get the events from our C-model (returns IntArray, so we need to convert to Array<Int>)
-        events = nBackHelper.generateNBackString(10, 9, 30, nBack).toList().toTypedArray()  // Todo Higher Grade: currently the size etc. are hardcoded, make these based on user input
-        Log.d("GameVM", "The following sequence was generated: ${events.contentToString()}")
+        // Generate a new sequence of events from NBackHelper
+        // Convert IntArray to Array<Int> by calling toTypedArray()
+        events = nBackHelper.generateNBackString(size = 10, combinations = 9, percentMatch = 30, nBack = nBack).toTypedArray()
 
+        Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
+
+        // Start the game loop to present each event in sequence
+        job?.cancel()  // Cancel any existing game loop job
         job = viewModelScope.launch {
-            when (gameState.value.gameType) {
-                GameType.Audio -> runAudioGame()
-                GameType.AudioVisual -> runAudioVisualGame()
-                GameType.Visual -> runVisualGame(events)
-            }
-            // Todo: update the highscore
+            runGameLoop(events)
         }
     }
 
-    override fun checkMatch() {
-        // Ensure we have enough events for an N-back check
-        val currentIndex = gameState.value.eventValue
-        if (currentIndex >= nBack) {
-            // Check if the current event matches the event n steps back
-            if (events[currentIndex] == events[currentIndex - nBack]) {
-                // It's a match, increase the score
-                _score.value += 1
+    // Function to run the game loop by displaying each event in sequence
+    private suspend fun runGameLoop(events: Array<Int>) {
+        for (index in events.indices) {
+            // Update gameState with the current event value to trigger UI updates
+            _gameState.value = _gameState.value.copy(eventValue = events[index])
+            delay(eventInterval)  // Wait for the specified interval before moving to the next event
+        }
+        // Game ends after all events are shown
+    }
 
-                // Update high score if necessary
-                updateHighScore(_score.value)
-            } else {
-                // Provide feedback for incorrect match (you could animate a UI component here)
-                Log.d("GameVM", "Incorrect match!")
-            }
+
+    override fun checkMatch() {
+        val currentIndex = gameState.value.eventValue
+        if (currentIndex >= nBack && events[currentIndex] == events[currentIndex - nBack]) {
+            _score.value += 1
+            updateHighScore(_score.value)
+            _feedback.value = FeedbackType.Correct
         } else {
-            Log.d("GameVM", "Not enough events to perform N-back match check.")
+            _feedback.value = FeedbackType.Incorrect
+        }
+        // Reset feedback after a short delay
+        viewModelScope.launch {
+            delay(500)
+            _feedback.value = FeedbackType.None
         }
     }
     private fun runAudioGame() {
@@ -166,7 +182,7 @@ data class GameState(
     val eventValue: Int = -1  // The value of the array string
 )
 
-class FakeVM: GameViewModel{
+/*class FakeVM: GameViewModel{
     override val gameState: StateFlow<GameState>
         get() = MutableStateFlow(GameState()).asStateFlow()
     override val score: StateFlow<Int>
@@ -184,4 +200,4 @@ class FakeVM: GameViewModel{
 
     override fun checkMatch() {
     }
-}
+}*/
