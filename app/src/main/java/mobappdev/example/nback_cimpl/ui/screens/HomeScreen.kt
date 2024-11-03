@@ -52,10 +52,9 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 @Composable
 fun HomeScreen(
     vm: GameViewModel,
-    onNavigateToGameScreen: () -> Unit // Callback to navigate to the GameScreen
+    onNavigateToGameScreen: () -> Unit
 ) {
     val highscore by vm.highscore.collectAsState()
-    val gameState by vm.gameState.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -75,27 +74,6 @@ fun HomeScreen(
                 style = MaterialTheme.typography.headlineLarge
             )
 
-            Box(
-                modifier = Modifier.weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    if (gameState.eventValue != -1) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = "Current eventValue is: ${gameState.eventValue}",
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                    Button(onClick = vm::startGame) {
-                        Text(text = "Generate eventValues")
-                    }
-                }
-            }
-
             Text(
                 modifier = Modifier.padding(16.dp),
                 text = "Start Game".uppercase(),
@@ -110,8 +88,8 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
-                    vm.setGameType(GameType.Audio) // Set the game type to Audio
-                    onNavigateToGameScreen() // Navigate to the GameScreen
+                    vm.setGameType(GameType.Audio)  // This will start the game in Audio mode
+                    onNavigateToGameScreen()  // Navigate to the GameScreen
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.sound_on),
@@ -122,8 +100,8 @@ fun HomeScreen(
                     )
                 }
                 Button(onClick = {
-                    vm.setGameType(GameType.Visual) // Set the game type to Visual
-                    onNavigateToGameScreen() // Navigate to the GameScreen
+                    vm.setGameType(GameType.Visual)  // This will start the game in Visual mode
+                    onNavigateToGameScreen()  // Navigate to the GameScreen
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.visual),
@@ -137,6 +115,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 @Preview
 @Composable

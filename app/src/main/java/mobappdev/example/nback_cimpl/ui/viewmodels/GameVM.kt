@@ -51,7 +51,7 @@ class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository
 ) : GameViewModel, ViewModel() {
 
-    private var previousEventValue: Int = -1  // Track previous event for 1-back logic
+    private var previousEventValue: Int = -1
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
@@ -72,15 +72,18 @@ class GameVM(
     private val eventInterval: Long = 2000L
     private val nBackHelper = NBackHelper()
     private var events = emptyArray<Int>()
+    private var isFirstEvent = true // Flag to prevent scoring on the first step
 
     override fun setGameType(gameType: GameType) {
         _gameState.value = _gameState.value.copy(gameType = gameType)
+        startGame()
     }
 
     override fun startGame() {
         _score.value = 0
         _feedback.value = FeedbackType.None
         previousEventValue = -1
+        isFirstEvent = true // Reset flag for a new game
 
         events = nBackHelper.generateNBackString(size = 10, combinations = 9, percentMatch = 30, nBack = nBack).toTypedArray()
         Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
@@ -92,30 +95,24 @@ class GameVM(
     }
 
     private suspend fun runGameLoop(events: Array<Int>) {
-        var index = 0
-        while (true) {  // Loop indefinitely
-            // Flash effect: temporarily hide the tile by setting eventValue to -1
+        for (index in events.indices) {
             _gameState.value = _gameState.value.copy(eventValue = -1)
-            delay(300)  // Brief delay to hide the tile
+            delay(300)
 
-            // Show the current event
             _gameState.value = _gameState.value.copy(eventValue = events[index])
             Log.d("GameVM", "Current eventValue: ${events[index]}")
-
-            // Move to the next event, or loop back to the start if at the end
-            index = (index + 1) % events.size  // Cycle back to the start after reaching the end
+            previousEventValue = events[index]
 
             delay(eventInterval)
         }
     }
 
-
-
     override fun checkMatch(selectedTile: Int) {
         val currentEventValue = gameState.value.eventValue
-        Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue")
+        Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue, Previous Event Value: $previousEventValue")
 
-        if (currentEventValue == previousEventValue && selectedTile == currentEventValue) {
+        // Only allow scoring if this isn't the first event
+        if (!isFirstEvent && selectedTile == previousEventValue && currentEventValue == previousEventValue) {
             _score.value += 1
             updateHighScore(_score.value)
             _feedback.value = FeedbackType.Correct
@@ -125,6 +122,8 @@ class GameVM(
             Log.d("GameVM", "Incorrect match!")
         }
 
+        // After the first event, disable the flag
+        isFirstEvent = false
         previousEventValue = currentEventValue
 
         viewModelScope.launch {
@@ -163,6 +162,7 @@ class GameVM(
         }
     }
 }
+
 
 
 // Class with the different game types
