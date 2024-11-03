@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "/Users/yeetivity/AndroidStudioProjects/NBack_CImpl/app/build/intermediates/cxx/Debug/3e01z3q1/obj/x86/libnback_cimpl.so"
+			"path" : "C:/Users/gemin/Documents/GitHub/NBackGame/app/build/intermediates/cxx/Debug/3e01z3q1/obj/x86/libnback_cimpl.so"
 		}
 	],
 	"backtrace" : 1,
@@ -58,7 +58,7 @@
 			],
 			"sysroot" : 
 			{
-				"path" : "/Users/yeetivity/Library/Android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/darwin-x86_64/sysroot"
+				"path" : "C:/Users/gemin/AppData/Local/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
 			}
 		}
 	],
@@ -73,7 +73,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "/Users/yeetivity/Library/Android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/26/liblog.so",
+				"fragment" : "C:\\Users\\gemin\\AppData\\Local\\Android\\Sdk\\ndk\\25.1.8937393\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\lib\\i686-linux-android\\26\\liblog.so",
 				"role" : "libraries"
 			},
 			{
@@ -84,7 +84,7 @@
 		"language" : "C",
 		"sysroot" : 
 		{
-			"path" : "/Users/yeetivity/Library/Android/sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/darwin-x86_64/sysroot"
+			"path" : "C:/Users/gemin/AppData/Local/Android/Sdk/ndk/25.1.8937393/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
 		}
 	},
 	"name" : "nback_cimpl",
