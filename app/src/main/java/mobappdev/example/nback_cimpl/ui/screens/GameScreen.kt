@@ -17,7 +17,6 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 
-
 /**
  * This is the GameScreen composable.
  *
@@ -35,6 +34,8 @@ fun GameScreen(vm: GameViewModel) {
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
     val feedback by vm.feedback.collectAsState()
+    val currentEventNumber by vm.currentEventNumber.collectAsState()
+    val correctResponses by vm.correctResponses.collectAsState()
 
     Column(
         modifier = Modifier
@@ -55,8 +56,19 @@ fun GameScreen(vm: GameViewModel) {
                 }
             )
             GameType.Audio -> Text("Audio cue: ${gameState.eventValue}")
-            //GameType.AudioVisual -> Text("Audio-Visual mode not implemented") // Placeholder
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display current event number and correct responses
+        Text(
+            text = "Event: $currentEventNumber / ${vm.nBack}", // assuming total events are managed elsewhere
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Text(
+            text = "Correct Responses: $correctResponses",
+            style = MaterialTheme.typography.bodyLarge
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -117,6 +129,3 @@ fun VisualGameGrid(eventValue: Int, onTileClick: (Int) -> Unit) {
         }
     }
 }
-
-
-
