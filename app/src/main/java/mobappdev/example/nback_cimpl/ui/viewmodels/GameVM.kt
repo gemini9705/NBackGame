@@ -93,10 +93,23 @@ class GameVM(
     }
 
     override fun checkMatch() {
-        /**
-         * Todo: This function should check if there is a match when the user presses a match button
-         * Make sure the user can only register a match once for each event.
-         */
+        // Ensure we have enough events for an N-back check
+        val currentIndex = gameState.value.eventValue
+        if (currentIndex >= nBack) {
+            // Check if the current event matches the event n steps back
+            if (events[currentIndex] == events[currentIndex - nBack]) {
+                // It's a match, increase the score
+                _score.value += 1
+
+                // Update high score if necessary
+                updateHighScore(_score.value)
+            } else {
+                // Provide feedback for incorrect match (you could animate a UI component here)
+                Log.d("GameVM", "Incorrect match!")
+            }
+        } else {
+            Log.d("GameVM", "Not enough events to perform N-back match check.")
+        }
     }
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
@@ -108,11 +121,17 @@ class GameVM(
             _gameState.value = _gameState.value.copy(eventValue = value)
             delay(eventInterval)
         }
-
     }
 
     private fun runAudioVisualGame(){
         // Todo: Make work for Higher grade
+    }
+    // In GameVM (ViewModel)
+
+    fun updateHighScore(newScore: Int) {
+        viewModelScope.launch {
+            userPreferencesRepository.saveHighScore(newScore)
+        }
     }
 
     companion object {
