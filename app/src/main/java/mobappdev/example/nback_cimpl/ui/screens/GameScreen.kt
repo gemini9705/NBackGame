@@ -1,6 +1,7 @@
 package mobappdev.example.nback_cimpl.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,6 @@ import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 
 @Composable
 fun GameScreen(vm: GameViewModel) {
-    // Observing the game state, score, and feedback from the ViewModel
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
     val feedback by vm.feedback.collectAsState()
@@ -49,20 +49,20 @@ fun GameScreen(vm: GameViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Displaying the current game type
         Text(text = "Game Type: ${gameState.gameType}")
 
-        // Display the appropriate UI based on the selected game type
         when (gameState.gameType) {
-            GameType.Visual -> VisualGameGrid(eventValue = gameState.eventValue)
-            GameType.Audio -> {
-                // Placeholder for audio cue
-                Text("Audio cue: ${gameState.eventValue}")
-            }
-            else -> Text("Dual N-back (not implemented for basic requirement)")
+            GameType.Visual -> VisualGameGrid(
+                eventValue = gameState.eventValue,
+                onTileClick = { selectedTile ->
+                    // Call checkMatch with the selected tile
+                    vm.checkMatch(selectedTile)
+                }
+            )
+            GameType.Audio -> Text("Audio cue: ${gameState.eventValue}")
+            GameType.AudioVisual -> Text("Audio-Visual mode not implemented") // Placeholder for AudioVisual case
         }
 
-        // Feedback-based styling for score
         Text(
             text = "Score: $score",
             modifier = Modifier.padding(top = 16.dp),
@@ -72,34 +72,38 @@ fun GameScreen(vm: GameViewModel) {
                 GameVM.FeedbackType.None -> Color.Black
             }
         )
-
-        // Button to check for an N-back match
-        Button(onClick = vm::checkMatch, modifier = Modifier.padding(top = 16.dp)) {
-            Text("Check Match")
-        }
     }
 }
+
+
 
 /**
  * VisualGameGrid shows a 3x3 grid for visual stimuli.
  */
 @Composable
-fun VisualGameGrid(eventValue: Int) {
+fun VisualGameGrid(eventValue: Int, onTileClick: (Int) -> Unit) {
     Column {
         for (i in 0..2) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
                 for (j in 0..2) {
-                    // Each cell of the grid
+                    val cellNumber = i * 3 + j + 1  // Calculate the cell index
+
+                    // Make each cell clickable and call onTileClick with the cell index
                     Box(
                         modifier = Modifier
-                            .size(80.dp) // Set the size of each cell
+                            .size(80.dp)
                             .padding(4.dp)
-                            .background(if ((i * 3 + j + 1) == eventValue) Color.Red else Color.Gray),
+                            .background(
+                                color = if (cellNumber == eventValue) Color.Red else Color.Gray
+                            )
+                            .clickable { onTileClick(cellNumber) }, // Make the tile clickable
                         contentAlignment = Alignment.Center
                     ) {
-                        // Display a text or an indicator for the event
                         Text(
-                            text = if ((i * 3 + j + 1) == eventValue) "X" else "",
+                            text = if (cellNumber == eventValue) "X" else "",
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.White
                         )
@@ -109,4 +113,5 @@ fun VisualGameGrid(eventValue: Int) {
         }
     }
 }
+
 

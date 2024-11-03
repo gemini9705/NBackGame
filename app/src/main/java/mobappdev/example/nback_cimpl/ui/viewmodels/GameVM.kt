@@ -44,7 +44,7 @@ interface GameViewModel {
     fun setGameType(gameType: GameType)
     fun startGame()
 
-    fun checkMatch()
+    fun checkMatch(selectedTile: Int)  // Modified to accept selectedTile
 }
 
 class GameVM(
@@ -111,22 +111,29 @@ class GameVM(
         // Game ends after all events are shown
     }
 
+    override fun checkMatch(selectedTile: Int) {
+        // Get the current event position that should match
+        val currentEventValue = gameState.value.eventValue
 
-    override fun checkMatch() {
-        val currentIndex = gameState.value.eventValue
-        if (currentIndex >= nBack && events[currentIndex] == events[currentIndex - nBack]) {
+        // Check if the selected tile matches the current event value
+        if (selectedTile == currentEventValue) {
+            // Correct match
             _score.value += 1
             updateHighScore(_score.value)
             _feedback.value = FeedbackType.Correct
         } else {
+            // Incorrect match
             _feedback.value = FeedbackType.Incorrect
         }
-        // Reset feedback after a short delay
+
+        // Reset feedback after a short delay to provide visual feedback
         viewModelScope.launch {
             delay(500)
             _feedback.value = FeedbackType.None
         }
     }
+
+
     private fun runAudioGame() {
         // Todo: Make work for Basic grade
     }
@@ -200,6 +207,7 @@ class FakeVM: GameViewModel{
     override fun startGame() {
     }
 
-    override fun checkMatch() {
+    override fun checkMatch(selectedTile: Int) {
+        TODO("Not yet implemented")
     }
 }
