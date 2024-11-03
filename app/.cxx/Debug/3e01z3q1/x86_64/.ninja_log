@@ -1,5 +1,5 @@
 # ninja log v5
-4	2272	7523576115912183	CMakeFiles/nback_cimpl.dir/nback.c.o	3dbd54cc580d7f99
-126	2310	7523576115942286	CMakeFiles/JniBridge.dir/JniBridge.c.o	45f7f2f953e51ec4
-2275	2717	7523576120142102	C:/Users/gemin/Documents/GitHub/NBackGame/app/build/intermediates/cxx/Debug/3e01z3q1/obj/x86_64/libnback_cimpl.so	749958a92f01312e
-2717	2999	7523576123222777	C:/Users/gemin/Documents/GitHub/NBackGame/app/build/intermediates/cxx/Debug/3e01z3q1/obj/x86_64/libJniBridge.so	62b1b59477b1bb48
+1	186	7523683692301557	CMakeFiles/nback_cimpl.dir/nback.c.o	3dbd54cc580d7f99
+20	230	7523683692454082	CMakeFiles/JniBridge.dir/JniBridge.c.o	45f7f2f953e51ec4
+188	450	7523683694482943	C:/Users/gemin/Documents/GitHub/NBackGame/app/build/intermediates/cxx/Debug/3e01z3q1/obj/x86_64/libnback_cimpl.so	749958a92f01312e
+451	630	7523683696621711	C:/Users/gemin/Documents/GitHub/NBackGame/app/build/intermediates/cxx/Debug/3e01z3q1/obj/x86_64/libJniBridge.so	62b1b59477b1bb48
