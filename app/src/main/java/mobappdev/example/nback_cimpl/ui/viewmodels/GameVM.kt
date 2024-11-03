@@ -182,13 +182,15 @@ data class GameState(
     val eventValue: Int = -1  // The value of the array string
 )
 
-/*class FakeVM: GameViewModel{
+class FakeVM: GameViewModel{
     override val gameState: StateFlow<GameState>
         get() = MutableStateFlow(GameState()).asStateFlow()
     override val score: StateFlow<Int>
         get() = MutableStateFlow(2).asStateFlow()
     override val highscore: StateFlow<Int>
         get() = MutableStateFlow(42).asStateFlow()
+    override val feedback: StateFlow<GameVM.FeedbackType>
+        get() = TODO("Not yet implemented")
     override val nBack: Int
         get() = 2
 
@@ -200,4 +202,4 @@ data class GameState(
 
     override fun checkMatch() {
     }
-}*/
+}
