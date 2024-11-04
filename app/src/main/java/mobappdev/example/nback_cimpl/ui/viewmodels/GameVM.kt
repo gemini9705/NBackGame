@@ -1,10 +1,10 @@
 package mobappdev.example.nback_cimpl.ui.viewmodels
 
+import android.app.Application
+import android.media.MediaPlayer
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.Job
@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.GameApplication
 import mobappdev.example.nback_cimpl.NBackHelper
 import mobappdev.example.nback_cimpl.data.UserPreferencesRepository
+import mobappdev.example.nback_cimpl.R
 
 interface GameViewModel {
     val gameState: StateFlow<GameState>
@@ -33,8 +34,9 @@ interface GameViewModel {
 }
 
 class GameVM(
-    private val userPreferencesRepository: UserPreferencesRepository
-) : GameViewModel, ViewModel() {
+    private val userPreferencesRepository: UserPreferencesRepository,
+    application: Application  // Needed for accessing resources
+) : AndroidViewModel(application), GameViewModel {
 
     private val _gameState = MutableStateFlow(GameState())
     override val gameState: StateFlow<GameState> = _gameState.asStateFlow()
@@ -64,6 +66,18 @@ class GameVM(
     private val _correctResponses = MutableStateFlow(0)
     override val correctResponses: StateFlow<Int> = _correctResponses.asStateFlow()
 
+    // MediaPlayer instance for audio playback
+    private var mediaPlayer: MediaPlayer? = null
+
+    // Map event values to corresponding audio resources
+    private val audioMap = mapOf(
+        1 to R.raw.a,
+        2 to R.raw.b,
+        3 to R.raw.c,
+        4 to R.raw.d,
+        5 to R.raw.e
+    )
+
     override fun setGameType(gameType: GameType) {
         _gameState.value = _gameState.value.copy(gameType = gameType)
         startGame()
@@ -76,7 +90,7 @@ class GameVM(
         _currentEventNumber.value = 1
         eventHistory.clear()
 
-        events = nBackHelper.generateNBackString(size = 10, combinations = 9, percentMatch = 30, nBack = nBack).toTypedArray()
+        events = nBackHelper.generateNBackString(size = 10, combinations = 5, percentMatch = 30, nBack = nBack).toTypedArray()
         Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
 
         job?.cancel()
@@ -97,12 +111,30 @@ class GameVM(
                 eventHistory.removeAt(0)  // Keep only the last `nBack + 1` events
             }
 
+            // Update the game state to display the new event
             _gameState.value = _gameState.value.copy(eventValue = event)
             Log.d("GameVM", "Current eventValue: $event, Event history: $eventHistory")
+
+            // Play audio if game type is audio or audio-visual
+            if (_gameState.value.gameType == GameType.Audio) {
+                playAudioForEvent(event)
+            }
 
             delay(eventInterval)
         }
         _currentEventNumber.value = 1  // Reset to 1 for a new round if needed
+    }
+
+    private fun playAudioForEvent(eventValue: Int) {
+        // Stop any ongoing playback
+        mediaPlayer?.release()
+
+        // Get the audio resource ID based on event value
+        val audioResId = audioMap[eventValue]
+        if (audioResId != null) {
+            mediaPlayer = MediaPlayer.create(getApplication(), audioResId)
+            mediaPlayer?.start()
+        }
     }
 
     override fun checkMatch(selectedTile: Int) {
@@ -128,7 +160,6 @@ class GameVM(
         }
     }
 
-
     override fun resetGame() {
         _score.value = 0
         _feedback.value = FeedbackType.None
@@ -146,7 +177,7 @@ class GameVM(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[APPLICATION_KEY] as GameApplication)
-                GameVM(application.userPreferencesRespository)
+                GameVM(application.userPreferencesRespository, application)
             }
         }
     }
@@ -158,26 +189,4 @@ class GameVM(
             }
         }
     }
-}
-
-class FakeVM: GameViewModel{
-    override val gameState: StateFlow<GameState>
-        get() = MutableStateFlow(GameState()).asStateFlow()
-    override val score: StateFlow<Int>
-        get() = MutableStateFlow(2).asStateFlow()
-    override val highscore: StateFlow<Int>
-        get() = MutableStateFlow(42).asStateFlow()
-    override val feedback: StateFlow<GameVM.FeedbackType>
-        get() = MutableStateFlow(GameVM.FeedbackType.None).asStateFlow()
-    override val nBack: Int
-        get() = 2
-    override val currentEventNumber: StateFlow<Int>
-        get() = MutableStateFlow(1).asStateFlow()
-    override val correctResponses: StateFlow<Int>
-        get() = MutableStateFlow(0).asStateFlow()
-
-    override fun setGameType(gameType: GameType) {}
-    override fun startGame() {}
-    override fun resetGame() {}
-    override fun checkMatch(selectedTile: Int) {}
 }

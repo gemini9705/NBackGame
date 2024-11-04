@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.R
-import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
+//import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 
@@ -134,10 +134,10 @@ fun HomeScreen(
 
 
 
-@Preview
+/*@Preview
 @Composable
 fun HomeScreenPreview() {
     Surface {
         HomeScreen(FakeVM()) {}
     }
-}
+}*/
