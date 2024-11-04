@@ -31,6 +31,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.BackHandler
 
 /**
  * This is the GameScreen composable.
@@ -45,7 +46,13 @@ import androidx.compose.ui.unit.dp
  */
 
 @Composable
-fun GameScreen(vm: GameViewModel) {
+fun GameScreen(vm: GameViewModel, onNavigateBack: () -> Unit) {
+    // Intercept the Android back button press
+    BackHandler {
+        vm.stopAudio()  // Stop audio playback when navigating back
+        onNavigateBack()
+    }
+
     val gameState by vm.gameState.collectAsState()
     val score by vm.score.collectAsState()
     val feedback by vm.feedback.collectAsState()
@@ -66,36 +73,37 @@ fun GameScreen(vm: GameViewModel) {
             GameType.Visual -> VisualGameGrid(
                 eventValue = gameState.eventValue,
                 onTileClick = { selectedTile -> vm.checkMatch(selectedTile) },
-                feedback = feedback  // Pass feedback to trigger animation
+                feedback = feedback
             )
             GameType.Audio -> {
+                // Display the current audio cue
                 Text("Audio cue: ${gameState.eventValue}")
 
+                // "Check Match" button for audio mode
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // "Match" button for audio mode
-                Button(
-                    onClick = { vm.checkMatch(gameState.eventValue) },  // Use the current event value as input
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("Match")
+                Button(onClick = {
+                    // You can pass a placeholder value like -1, as `checkMatch` won't use it in audio mode
+                    vm.checkMatch(-1)
+                }) {
+                    Text(text = "Check Match")
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Score: $score", style = MaterialTheme.typography.headlineMedium)
-
-        // Display event number and correct responses
         Text(text = "Event: $currentEventNumber")
         Text(text = "Correct Responses: $correctResponses")
-
         Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = { vm.resetGame() }) {
             Text(text = "Reset Game")
         }
     }
 }
+
+
+
 
 
 

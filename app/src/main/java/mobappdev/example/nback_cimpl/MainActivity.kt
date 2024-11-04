@@ -17,20 +17,6 @@ import mobappdev.example.nback_cimpl.ui.screens.HomeScreen
 import mobappdev.example.nback_cimpl.ui.theme.NBack_CImplTheme
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
 
-/**
- * This is the MainActivity of the application
- *
- * Your navigation between the two (or more) screens should be handled here
- * For this application you need at least a homescreen (a start is already made for you)
- * and a gamescreen (you will have to make yourself, but you can use the same viewmodel)
- *
- * Date: 25-08-2023
- * Version: Version 1.0
- * Author: Yeetivity
- *
- */
-
-// Enum class to define the states of the screens
 enum class ViewState { HOME, GAME }
 
 class MainActivity : ComponentActivity() {
@@ -38,23 +24,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             NBack_CImplTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Instantiate the viewmodel
                     val gameViewModel: GameVM = viewModel(factory = GameVM.Factory)
-
-                    // State variable to hold the current view state
                     var currentViewState by remember { mutableStateOf(ViewState.HOME) }
 
-                    // Function to handle navigation
+                    // Navigate to GameScreen
                     fun navigateToGameScreen() {
                         currentViewState = ViewState.GAME
                     }
 
-                    // Render the appropriate screen based on the current view state
+                    // Navigate back to HomeScreen
+                    fun navigateToHomeScreen() {
+                        currentViewState = ViewState.HOME
+                    }
+
                     when (currentViewState) {
                         ViewState.HOME -> {
                             HomeScreen(vm = gameViewModel, onNavigateToGameScreen = {
@@ -62,7 +48,9 @@ class MainActivity : ComponentActivity() {
                             })
                         }
                         ViewState.GAME -> {
-                            GameScreen(vm = gameViewModel)
+                            GameScreen(vm = gameViewModel, onNavigateBack = {
+                                navigateToHomeScreen()
+                            })
                         }
                     }
                 }

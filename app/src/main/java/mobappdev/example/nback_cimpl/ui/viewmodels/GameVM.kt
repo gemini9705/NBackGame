@@ -31,6 +31,7 @@ interface GameViewModel {
     fun startGame()
     fun resetGame()
     fun checkMatch(selectedTile: Int)
+    fun stopAudio() // Add this line
 }
 
 class GameVM(
@@ -54,7 +55,7 @@ class GameVM(
 
     override val nBack: Int = 1  // Assuming 1-back; modify for other values
 
-    private var job: Job? = null
+    private var gameLoopJob: Job? = null  // Track the Job for runGameLoop
     private val eventInterval: Long = 2000L
     private val nBackHelper = NBackHelper()
     private var events = emptyArray<Int>()
@@ -93,8 +94,9 @@ class GameVM(
         events = nBackHelper.generateNBackString(size = 10, combinations = 5, percentMatch = 30, nBack = nBack).toTypedArray()
         Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
 
-        job?.cancel()
-        job = viewModelScope.launch {
+        // Cancel any existing game loop
+        gameLoopJob?.cancel()
+        gameLoopJob = viewModelScope.launch {
             runGameLoop(events)
         }
     }
@@ -105,17 +107,14 @@ class GameVM(
             _gameState.value = _gameState.value.copy(eventValue = -1)
             delay(300)
 
-            // Add the new event to the event history
             eventHistory.add(event)
             if (eventHistory.size > nBack + 1) {
                 eventHistory.removeAt(0)  // Keep only the last `nBack + 1` events
             }
 
-            // Update the game state to display the new event
             _gameState.value = _gameState.value.copy(eventValue = event)
             Log.d("GameVM", "Current eventValue: $event, Event history: $eventHistory")
 
-            // Play audio if game type is audio or audio-visual
             if (_gameState.value.gameType == GameType.Audio) {
                 playAudioForEvent(event)
             }
@@ -125,11 +124,23 @@ class GameVM(
         _currentEventNumber.value = 1  // Reset to 1 for a new round if needed
     }
 
-    private fun playAudioForEvent(eventValue: Int) {
-        // Stop any ongoing playback
-        mediaPlayer?.release()
+    override fun stopAudio() {
+        // Cancel the game loop job to stop the loop
+        gameLoopJob?.cancel()
+        gameLoopJob = null
 
-        // Get the audio resource ID based on event value
+        // Stop and release the media player if it's playing
+        if (mediaPlayer?.isPlaying == true) {
+            mediaPlayer?.stop()
+        }
+        mediaPlayer?.reset()  // Reset the MediaPlayer to clear the current state
+        mediaPlayer?.release()  // Release resources
+        mediaPlayer = null  // Set to null to ensure it's fully cleaned up
+        Log.d("GameVM", "Audio playback stopped and MediaPlayer resources released.")
+    }
+
+    private fun playAudioForEvent(eventValue: Int) {
+        mediaPlayer?.release() // Release any existing player
         val audioResId = audioMap[eventValue]
         if (audioResId != null) {
             mediaPlayer = MediaPlayer.create(getApplication(), audioResId)
@@ -137,14 +148,26 @@ class GameVM(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        stopAudio() // Ensure audio is stopped and resources are released
+    }
+
     override fun checkMatch(selectedTile: Int) {
         val currentEventValue = gameState.value.eventValue
         Log.d("GameVM", "Selected Tile: $selectedTile, Current Event Value: $currentEventValue, Event History: $eventHistory")
 
-        // Check if `eventHistory` has enough items to validate an n-back match
-        if (eventHistory.size > nBack && selectedTile == eventHistory[eventHistory.size - (nBack + 1)]) {
+        val isMatch = if (_gameState.value.gameType == GameType.Audio) {
+            // For audio mode, compare the current event with the n-back event directly
+            eventHistory.size > nBack && eventHistory[eventHistory.size - 1] == eventHistory[eventHistory.size - (nBack + 1)]
+        } else {
+            // For visual mode, compare the selectedTile with the n-back event
+            eventHistory.size > nBack && selectedTile == eventHistory[eventHistory.size - (nBack + 1)]
+        }
+
+        if (isMatch) {
             _score.value += 1
-            _correctResponses.value += 1 // Update correct responses count
+            _correctResponses.value += 1
             updateHighScore(_score.value)
             _feedback.value = FeedbackType.Correct
             Log.d("GameVM", "Correct n-back match! Score updated to ${_score.value}")
@@ -153,7 +176,6 @@ class GameVM(
             Log.d("GameVM", "Incorrect match!")
         }
 
-        // Reset feedback after a delay for visual feedback
         viewModelScope.launch {
             delay(500)
             _feedback.value = FeedbackType.None
@@ -190,3 +212,4 @@ class GameVM(
         }
     }
 }
+
