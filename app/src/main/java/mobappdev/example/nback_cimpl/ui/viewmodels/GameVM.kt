@@ -70,7 +70,7 @@ class GameVM(
     // MediaPlayer instance for audio playback
     private var mediaPlayer: MediaPlayer? = null
 
-    // Map event values to corresponding audio resources
+    // Mapping event values to corresponding audio resources
     private val audioMap = mapOf(
         1 to R.raw.a,
         2 to R.raw.b,
