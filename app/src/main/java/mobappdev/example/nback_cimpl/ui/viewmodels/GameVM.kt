@@ -31,7 +31,7 @@ interface GameViewModel {
     fun startGame()
     fun resetGame()
     fun checkMatch(selectedTile: Int)
-    fun stopAudio() // Add this line
+    fun stopAudio()
 }
 
 class GameVM(
@@ -53,9 +53,9 @@ class GameVM(
 
     enum class FeedbackType { Correct, Incorrect, None }
 
-    override val nBack: Int = 1  // Assuming 1-back; modify for other values
+    override val nBack: Int = 1
 
-    private var gameLoopJob: Job? = null  // Track the Job for runGameLoop
+    private var gameLoopJob: Job? = null
     private val eventInterval: Long = 2000L
     private val nBackHelper = NBackHelper()
     private var events = emptyArray<Int>()
@@ -94,8 +94,8 @@ class GameVM(
         events = nBackHelper.generateNBackString(size = 10, combinations = 5, percentMatch = 30, nBack = nBack).toTypedArray()
         Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
 
-        // Cancel any existing game loop
-        gameLoopJob?.cancel()
+
+        gameLoopJob?.cancel() // Cancel existing game loop
         gameLoopJob = viewModelScope.launch {
             runGameLoop(events)
         }
@@ -103,13 +103,13 @@ class GameVM(
 
     private suspend fun runGameLoop(events: Array<Int>) {
         for ((index, event) in events.withIndex()) {
-            _currentEventNumber.value = index + 1  // Update the event number
+            _currentEventNumber.value = index + 1  // Update event number
             _gameState.value = _gameState.value.copy(eventValue = -1)
             delay(300)
 
             eventHistory.add(event)
             if (eventHistory.size > nBack + 1) {
-                eventHistory.removeAt(0)  // Keep only the last `nBack + 1` events
+                eventHistory.removeAt(0)
             }
 
             _gameState.value = _gameState.value.copy(eventValue = event)
@@ -121,26 +121,24 @@ class GameVM(
 
             delay(eventInterval)
         }
-        _currentEventNumber.value = 1  // Reset to 1 for a new round if needed
+        _currentEventNumber.value = 1
     }
 
     override fun stopAudio() {
-        // Cancel the game loop job to stop the loop
         gameLoopJob?.cancel()
         gameLoopJob = null
 
-        // Stop and release the media player if it's playing
         if (mediaPlayer?.isPlaying == true) {
             mediaPlayer?.stop()
         }
-        mediaPlayer?.reset()  // Reset the MediaPlayer to clear the current state
-        mediaPlayer?.release()  // Release resources
-        mediaPlayer = null  // Set to null to ensure it's fully cleaned up
+        mediaPlayer?.reset()
+        mediaPlayer?.release()
+        mediaPlayer = null
         Log.d("GameVM", "Audio playback stopped and MediaPlayer resources released.")
     }
 
     private fun playAudioForEvent(eventValue: Int) {
-        mediaPlayer?.release() // Release any existing player
+        mediaPlayer?.release()
         val audioResId = audioMap[eventValue]
         if (audioResId != null) {
             mediaPlayer = MediaPlayer.create(getApplication(), audioResId)
@@ -150,7 +148,7 @@ class GameVM(
 
     override fun onCleared() {
         super.onCleared()
-        stopAudio() // Ensure audio is stopped and resources are released
+        stopAudio()
     }
 
     override fun checkMatch(selectedTile: Int) {

@@ -16,40 +16,21 @@ import androidx.compose.ui.unit.dp
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameVM
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.getValue
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.activity.compose.BackHandler
-
-/**
- * This is the GameScreen composable.
- *
- * It displays the game type and presents visual or audio stimuli based on the selection.
- * The screen also provides a button to check for N-back matches.
- *
- * Date: 03-11-2024
- * Version: Version 1.0
- * Author: Gemini
- *
- */
 
 @Composable
 fun GameScreen(vm: GameViewModel, onNavigateBack: () -> Unit) {
-    // Intercept the Android back button press
+
     BackHandler {
-        vm.stopAudio()  // Stop audio playback when navigating back
+        vm.stopAudio()
         onNavigateBack()
     }
 
@@ -76,13 +57,10 @@ fun GameScreen(vm: GameViewModel, onNavigateBack: () -> Unit) {
                 feedback = feedback
             )
             GameType.Audio -> {
-                // Display the current audio cue
                 Text("Audio cue: ${gameState.eventValue}")
 
-                // "Check Match" button for audio mode
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {
-                    // You can pass a placeholder value like -1, as `checkMatch` won't use it in audio mode
+                Button(onClick = {  // "Check Match" button for audio mode
                     vm.checkMatch(-1)
                 }) {
                     Text(text = "Check Match")
@@ -101,11 +79,6 @@ fun GameScreen(vm: GameViewModel, onNavigateBack: () -> Unit) {
         }
     }
 }
-
-
-
-
-
 
 /**
  * VisualGameGrid shows a 3x3 grid for visual stimuli.
@@ -132,18 +105,16 @@ fun VisualGameGrid(
                             .size(80.dp)
                             .padding(4.dp)
                             .background(tileColor)
-                            .then(shakeAnimation(feedback)) // Apply shake effect on incorrect feedback
+                            .then(shakeAnimation(feedback))
                             .clickable { onTileClick(cellNumber) },
                         contentAlignment = Alignment.Center
                     ) {
-                        // No text display needed; the red color indicates the active tile
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun shakeAnimation(feedback: GameVM.FeedbackType): Modifier {

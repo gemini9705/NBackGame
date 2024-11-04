@@ -31,12 +31,10 @@ class MainActivity : ComponentActivity() {
                     val gameViewModel: GameVM = viewModel(factory = GameVM.Factory)
                     var currentViewState by remember { mutableStateOf(ViewState.HOME) }
 
-                    // Navigate to GameScreen
                     fun navigateToGameScreen() {
                         currentViewState = ViewState.GAME
                     }
 
-                    // Navigate back to HomeScreen
                     fun navigateToHomeScreen() {
                         currentViewState = ViewState.HOME
                     }

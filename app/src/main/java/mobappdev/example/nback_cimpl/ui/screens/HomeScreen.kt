@@ -1,7 +1,6 @@
 package mobappdev.example.nback_cimpl.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,28 +23,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import mobappdev.example.nback_cimpl.R
 //import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
-
-
-/**
- * This is the Home screen composable
- *
- * Currently this screen shows the saved highscore
- * It also contains a button which can be used to show that the C-integration works
- * Furthermore it contains two buttons that you can use to start a game
- *
- * Date: 25-08-2023
- * Version: Version 1.0
- * Author: Yeetivity
- *
- */
 
 @Composable
 fun HomeScreen(
@@ -56,9 +37,9 @@ fun HomeScreen(
     val highscore by vm.highscore.collectAsState()
     val gameState by vm.gameState.collectAsState()
     val gameType = gameState.gameType
-    val nBack = vm.nBack // Assuming nBack is provided by GameViewModel
-    val eventInterval = 2000L // Assuming a constant value or replace it with vm.eventInterval if dynamic
-    val roundSize = 10 // Assuming a constant or replace with dynamic value if available
+    val nBack = vm.nBack
+    val eventInterval = 2000L
+    val roundSize = 10
 
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -104,8 +85,8 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(onClick = {
-                    vm.setGameType(GameType.Audio)  // This will start the game in Audio mode
-                    onNavigateToGameScreen()  // Navigate to the GameScreen
+                    vm.setGameType(GameType.Audio)
+                    onNavigateToGameScreen()
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.sound_on),
@@ -116,8 +97,8 @@ fun HomeScreen(
                     )
                 }
                 Button(onClick = {
-                    vm.setGameType(GameType.Visual)  // This will start the game in Visual mode
-                    onNavigateToGameScreen()  // Navigate to the GameScreen
+                    vm.setGameType(GameType.Visual)
+                    onNavigateToGameScreen()
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.visual),
