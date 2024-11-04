@@ -68,7 +68,19 @@ fun GameScreen(vm: GameViewModel) {
                 onTileClick = { selectedTile -> vm.checkMatch(selectedTile) },
                 feedback = feedback  // Pass feedback to trigger animation
             )
-            GameType.Audio -> Text("Audio cue: ${gameState.eventValue}")
+            GameType.Audio -> {
+                Text("Audio cue: ${gameState.eventValue}")
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // "Match" button for audio mode
+                Button(
+                    onClick = { vm.checkMatch(gameState.eventValue) },  // Use the current event value as input
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("Match")
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -84,6 +96,7 @@ fun GameScreen(vm: GameViewModel) {
         }
     }
 }
+
 
 
 /**
