@@ -91,7 +91,7 @@ class GameVM(
         _currentEventNumber.value = 1
         eventHistory.clear()
 
-        events = nBackHelper.generateNBackString(size = 10, combinations = 5, percentMatch = 30, nBack = nBack).toTypedArray()
+        events = nBackHelper.generateNBackString(size = 20, combinations = 5, percentMatch = 30, nBack = nBack).toTypedArray()
         Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
 
 
