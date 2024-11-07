@@ -60,7 +60,7 @@ fun GameScreen(vm: GameViewModel, onNavigateBack: () -> Unit) {
                 Text("Audio cue: ${gameState.eventValue}")
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = {  // "Check Match" button for audio mode
+                Button(onClick = {
                     vm.checkMatch(-1)
                 }) {
                     Text(text = "Check Match")

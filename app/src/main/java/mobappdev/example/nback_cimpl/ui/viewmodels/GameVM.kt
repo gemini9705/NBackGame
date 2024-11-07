@@ -37,7 +37,7 @@ interface GameViewModel {
 
 class GameVM(
     private val userPreferencesRepository: UserPreferencesRepository,
-    application: Application  // Needed for accessing resources
+    application: Application
 ) : AndroidViewModel(application), GameViewModel, TextToSpeech.OnInitListener {
 
     private val _gameState = MutableStateFlow(GameState())
@@ -70,10 +70,7 @@ class GameVM(
     private val _correctResponses = MutableStateFlow(0)
     override val correctResponses: StateFlow<Int> = _correctResponses.asStateFlow()
 
-    // Initialize TextToSpeech
     private var textToSpeech: TextToSpeech? = TextToSpeech(application, this)
-
-    // Letters array from A to I
     private val letters = arrayOf("A", "B", "C", "D", "E", "F", "G", "H", "I")
 
     override fun onInit(status: Int) {
@@ -154,7 +151,7 @@ class GameVM(
     override fun onCleared() {
         super.onCleared()
         stopAudio()
-        textToSpeech?.shutdown()  // Release Text-to-Speech resources
+        textToSpeech?.shutdown()
     }
 
     override fun checkMatch(selectedTile: Int) {

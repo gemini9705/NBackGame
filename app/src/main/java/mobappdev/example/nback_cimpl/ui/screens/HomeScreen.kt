@@ -19,13 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import mobappdev.example.nback_cimpl.R
-//import mobappdev.example.nback_cimpl.ui.viewmodels.FakeVM
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameViewModel
 import mobappdev.example.nback_cimpl.ui.viewmodels.GameType
 
@@ -42,7 +40,7 @@ fun HomeScreen(
     val roundSize = vm.roundSize;
 
     val snackBarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    //val scope = rememberCoroutineScope()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackBarHostState) }
@@ -56,7 +54,7 @@ fun HomeScreen(
         ) {
             Text(
                 modifier = Modifier.padding(32.dp),
-                text = "High-Score = $highscore",
+                text = "Latest High Score: $highscore",
                 style = MaterialTheme.typography.headlineLarge
             )
 
@@ -65,10 +63,10 @@ fun HomeScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(vertical = 16.dp)
             )
-            Text(text = "Mode: ${gameType.name}")
+            //Text(text = "Mode: ${gameType.name}")
             Text(text = "N-Back Level: $nBack")
             Text(text = "Time Between Events: $eventInterval ms")
-            Text(text = "Events in Round: $roundSize")  // Now dynamically linked to vm.roundSize
+            Text(text = "Events in Round: $roundSize")
 
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -111,14 +109,3 @@ fun HomeScreen(
         }
     }
 }
-
-
-
-
-/*@Preview
-@Composable
-fun HomeScreenPreview() {
-    Surface {
-        HomeScreen(FakeVM()) {}
-    }
-}*/
