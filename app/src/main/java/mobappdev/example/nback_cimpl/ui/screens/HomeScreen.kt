@@ -39,7 +39,7 @@ fun HomeScreen(
     val gameType = gameState.gameType
     val nBack = vm.nBack
     val eventInterval = 2000L
-    val roundSize = 10
+    val roundSize = vm.roundSize;
 
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -60,7 +60,6 @@ fun HomeScreen(
                 style = MaterialTheme.typography.headlineLarge
             )
 
-            // Display current game settings
             Text(
                 text = "Game Settings",
                 style = MaterialTheme.typography.headlineMedium,
@@ -69,7 +68,7 @@ fun HomeScreen(
             Text(text = "Mode: ${gameType.name}")
             Text(text = "N-Back Level: $nBack")
             Text(text = "Time Between Events: $eventInterval ms")
-            Text(text = "Events in Round: $roundSize")
+            Text(text = "Events in Round: $roundSize")  // Now dynamically linked to vm.roundSize
 
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -112,6 +111,7 @@ fun HomeScreen(
         }
     }
 }
+
 
 
 

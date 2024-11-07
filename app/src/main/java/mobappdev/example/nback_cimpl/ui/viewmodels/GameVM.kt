@@ -26,6 +26,7 @@ interface GameViewModel {
     val nBack: Int
     val currentEventNumber: StateFlow<Int>
     val correctResponses: StateFlow<Int>
+    val roundSize: Int
 
     fun setGameType(gameType: GameType)
     fun startGame()
@@ -50,6 +51,8 @@ class GameVM(
 
     private val _feedback = MutableStateFlow(FeedbackType.None)
     override val feedback: StateFlow<FeedbackType> = _feedback.asStateFlow()
+
+    override val roundSize = 20  // Set this as your desired round size, e.g., 20
 
     enum class FeedbackType { Correct, Incorrect, None }
 
@@ -91,9 +94,14 @@ class GameVM(
         _currentEventNumber.value = 1
         eventHistory.clear()
 
-        events = nBackHelper.generateNBackString(size = 20, combinations = 5, percentMatch = 30, nBack = nBack).toTypedArray()
-        Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
+        events = nBackHelper.generateNBackString(
+            size = roundSize,  // Use roundSize here
+            combinations = 5,
+            percentMatch = 30,
+            nBack = nBack
+        ).toTypedArray()
 
+        Log.d("GameVM", "New N-back sequence generated: ${events.contentToString()}")
 
         gameLoopJob?.cancel() // Cancel existing game loop
         gameLoopJob = viewModelScope.launch {
